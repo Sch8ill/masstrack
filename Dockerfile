@@ -1,7 +1,5 @@
 FROM golang:1.24.4-alpine AS builder
 
-RUN apk add --no-cache tzdata
-
 WORKDIR /go/src/masstrack
 
 COPY go.mod go.sum ./
@@ -13,6 +11,8 @@ COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s" -o masstrack /go/src/masstrack/main.go
 
 FROM alpine:3.22
+
+RUN apk add --no-cache tzdata
 
 ENV GIN_MODE=release
 
