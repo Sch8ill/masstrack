@@ -1,5 +1,7 @@
 FROM golang:1.24.4-alpine AS builder
 
+RUN apk add --no-cache tzdata
+
 WORKDIR /go/src/masstrack
 
 COPY go.mod go.sum ./
