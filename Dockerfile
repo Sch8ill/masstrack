@@ -12,8 +12,6 @@ RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s" -o masstrack /go/src/masstrac
 
 FROM alpine:3.22
 
-RUN apk add --no-cache tzdata
-
 ENV GIN_MODE=release
 
 COPY --from=builder /go/src/masstrack/masstrack /usr/bin/masstrack
