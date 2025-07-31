@@ -21,6 +21,11 @@ func NewDB(url string) (*DB, error) {
 		return nil, err
 	}
 
+	_, err = db.Exec("SET TIME ZONE 'Europe/Berlin'")
+    if err != nil {
+        return nil, err
+    }
+
 	return &DB{db: db}, nil
 }
 

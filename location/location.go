@@ -31,8 +31,12 @@ func (l *Location) UnmarshalJSON(data []byte) error {
 	l.Device = loc.Device
 	l.Latitude = float64(loc.Latitude) / 1000000
 	l.Longitude = float64(loc.Longitude) / 1000000
-	// postgres automatically converts timestamp to local time
-	l.Timestamp = time.Unix(loc.Timestamp, 0).UTC()
+
+	timezone, err := time.LoadLocation("Europe/Berlin")
+	if err != nil {
+		panic(err)
+	}
+	l.Timestamp = time.Unix(loc.Timestamp, 0).In(timezone)
 
 	return nil
 }
