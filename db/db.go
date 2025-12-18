@@ -3,7 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/sch8ill/masstrack/location"
 
@@ -22,9 +24,9 @@ func NewDB(url string) (*DB, error) {
 	}
 
 	_, err = db.Exec("SET TIME ZONE 'Europe/Berlin'")
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
 	return &DB{db: db}, nil
 }
@@ -65,11 +67,11 @@ func (db *DB) CurrentLocations() ([]location.Location, error) {
 	return locations, nil
 }
 
-func (db *DB) DeviceLocations(device string) ([]location.Location, error) {
+func (db *DB) TimespanLocations(start, end time.Time) ([]location.Location, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	rows, err := db.db.Query("SELECT * FROM locations WHERE device = $1 ORDER BY timestamp;", device)
+	rows, err := db.db.Query("SELECT * FROM locations WHERE timestamp > $1 AND timestamp < $2 ORDER BY timestamp DESC;", start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +81,32 @@ func (db *DB) DeviceLocations(device string) ([]location.Location, error) {
 	for rows.Next() {
 		var loc location.Location
 		if err := rows.Scan(&loc.Device, &loc.Latitude, &loc.Longitude, &loc.Timestamp); err != nil {
+			return locations, err
+		}
+		locations = append(locations, loc)
+	}
+
+	if err = rows.Err(); err != nil {
+		return locations, err
+	}
+	log.Printf("%d locations from %s till %s", len(locations), start.String(), end.String())
+	return locations, nil
+}
+
+func (db *DB) DeviceLocations(device string) ([]location.Location, error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
+	rows, err := db.db.Query("SELECT latitude, longitude, timestamp FROM locations WHERE device = $1 ORDER BY timestamp;", device)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var locations []location.Location
+	for rows.Next() {
+		var loc location.Location
+		if err := rows.Scan(&loc.Latitude, &loc.Longitude, &loc.Timestamp); err != nil {
 			return locations, err
 		}
 		locations = append(locations, loc)

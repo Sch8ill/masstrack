@@ -9,7 +9,7 @@ import (
 const locationsURL = "https://api-gw.criticalmaps.net/locations"
 
 type Location struct {
-	Device    string    `json:"device"`
+	Device    string    `json:"device,omitempty"`
 	Latitude  float64   `json:"latitude"`
 	Longitude float64   `json:"longitude"`
 	Timestamp time.Time `json:"timestamp"`

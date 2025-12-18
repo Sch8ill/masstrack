@@ -48,6 +48,7 @@ func main() {
 	}
 
 	r.GET("/", handlers.Index)
+
 	api := r.Group("/api/v1")
 	api.GET("/locations", handlers.Locations(db))
 
