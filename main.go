@@ -67,13 +67,14 @@ func locationsService(db *db.DB) {
 		locations, err := location.FetchLocations()
 		if err != nil {
 			log.Fatal(err)
-		}
-
-		for _, l := range locations {
-			if err := db.NewLocation(l); err != nil {
-				log.Fatal(err)
+		} else {
+			for _, l := range locations {
+				if err := db.NewLocation(l); err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
-		time.Sleep(time.Minute * 10)
+
+		time.Sleep(time.Minute * 2)
 	}
 }
