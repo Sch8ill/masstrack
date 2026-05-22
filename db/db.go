@@ -97,7 +97,7 @@ func (db *DB) DeviceLocations(device string) ([]location.Location, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	rows, err := db.db.Query("SELECT latitude, longitude, timestamp FROM locations WHERE device = $1 ORDER BY timestamp;", device)
+	rows, err := db.db.Query("SELECT latitude, longitude, timestamp FROM locations WHERE device LIKE $1 ORDER BY timestamp;", device+"%")
 	if err != nil {
 		return nil, err
 	}
